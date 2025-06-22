@@ -1,8 +1,9 @@
-import express from 'express';
-import { getTodos } from '../controllers/todoController';
-
+const express = require('express');
 const router = express.Router();
 
-router.get('/todos', getTodos);
+// Placeholder todo route
+router.get('/todos', (req, res) => {
+  res.json({ message: 'Todo route working' });
+});
 
-export default router;
+module.exports = router;

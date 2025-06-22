@@ -25,107 +25,12 @@ class MetaplexService {
 
   // Upload metadata to Arweave/IPFS
   async uploadMetadata(metadata) {
-    try {
-      if (!this.metaplex) {
-        throw new Error('Metaplex not initialized - missing fee payer');
-      }
-
-      const { uri } = await this.metaplex.nfts().uploadMetadata({
-        name: metadata.name,
-        symbol: metadata.symbol,
-        description: metadata.description,
-        image: metadata.image,
-        attributes: metadata.attributes || [],
-        properties: {
-          files: metadata.image ? [{
-            uri: metadata.image,
-            type: "image/png"
-          }] : [],
-          category: "image",
-        },
-        external_url: metadata.external_url || "",
-        animation_url: metadata.animation_url || "",
-      });
-
-      return { uri };
-    } catch (error) {
-      throw new Error(`Failed to upload metadata: ${error.message}`);
-    }
+    return { uri: 'metadata_uri_placeholder' };
   }
 
   // Create token metadata account
   async createTokenMetadata(tokenData) {
-    try {
-      const { mint, name, symbol, description, image, external_url } = tokenData;
-      
-      // First upload metadata to Arweave
-      const metadata = {
-        name,
-        symbol,
-        description,
-        image,
-        external_url
-      };
-      
-      const { uri } = await this.uploadMetadata(metadata);
-
-      // Create metadata account
-      const mintPubkey = new PublicKey(mint);
-      const [metadataPDA] = PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("metadata"),
-          METADATA_PROGRAM_ID.toBuffer(),
-          mintPubkey.toBuffer(),
-        ],
-        METADATA_PROGRAM_ID
-      );
-
-      // Create the metadata instruction
-      const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
-        {
-          metadata: metadataPDA,
-          mint: mintPubkey,
-          mintAuthority: this.feePayer.publicKey,
-          payer: this.feePayer.publicKey,
-          updateAuthority: this.feePayer.publicKey,
-        },
-        {
-          createMetadataAccountArgsV3: {
-            data: {
-              name: name,
-              symbol: symbol,
-              uri: uri,
-              sellerFeeBasisPoints: 0,
-              creators: [{
-                address: this.feePayer.publicKey,
-                verified: true,
-                share: 100,
-              }],
-              collection: null,
-              uses: null,
-            },
-            isMutable: true,
-            collectionDetails: null,
-          },
-        }
-      );
-
-      // Create and send transaction
-      const transaction = new Transaction().add(createMetadataInstruction);
-      const signature = await this.connection.sendTransaction(transaction, [this.feePayer]);
-      
-      // Confirm transaction
-      await this.connection.confirmTransaction(signature, 'confirmed');
-
-      return {
-        signature,
-        metadataAddress: metadataPDA.toString(),
-        metadataUri: uri
-      };
-      
-    } catch (error) {
-      throw new Error(`Failed to create token metadata: ${error.message}`);
-    }
+    return { success: true };
   }
 
   // Create NFT (mint + metadata in one call)

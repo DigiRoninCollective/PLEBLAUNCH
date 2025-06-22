@@ -1,10 +1,9 @@
-// Placeholder for walletRoutes
 const express = require('express');
 const router = express.Router();
 
-// Example route
+// Placeholder wallet route
 router.get('/', (req, res) => {
-  res.send('Wallet route placeholder');
+  res.json({ message: 'Wallet route working' });
 });
 
 module.exports = router;

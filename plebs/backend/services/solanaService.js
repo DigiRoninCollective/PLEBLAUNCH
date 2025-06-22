@@ -9,11 +9,12 @@ const {
 
 class SolanaService {
   constructor() {
-    // constructor implementation
+    this.connection = { getParsedTransaction: async () => null };
+    this.feePayer = { publicKey: 'placeholder' };
   }
 
-  someMethod() {
-    // method implementation
+  async createToken2022WithExtensions() {
+    return { mint: 'mint_placeholder', signature: 'sig_placeholder' };
   }
 }
 
