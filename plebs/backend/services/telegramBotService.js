@@ -105,10 +105,15 @@ class TelegramBotService {
       const response = await fetch(`https://api.solscan.io/token/meta?tokenAddress=${tokenAddress}`, {
         headers: this.solscanApiKey ? { 'Authorization': `Bearer ${this.solscanApiKey}` } : {}
       });
-      if (!response.ok) throw new Error('Failed to fetch from Solscan');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Solscan API error: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`Failed to fetch from Solscan (status ${response.status}): ${errorText}`);
+      }
       return await response.json();
     } catch (err) {
-      return { error: err.message };
+      console.error('Error fetching info from Solscan:', err, 'API Key:', this.solscanApiKey);
+      return { error: 'Error fetching info from Solscan. ' + err.message };
     }
   }
 
