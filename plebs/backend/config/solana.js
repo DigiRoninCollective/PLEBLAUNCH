@@ -18,3 +18,11 @@ class SolanaService {
 }
 
 module.exports = new SolanaService();
+// Placeholder Solana config
+// Replace with your actual Solana connection and keypair setup
+
+module.exports = {
+  connection: null, // e.g., new Connection('https://api.mainnet-beta.solana.com')
+  feePayerKeypair: null, // e.g., Keypair.fromSecretKey(...)
+  TRANSACTION_CONFIG: {},
+};
