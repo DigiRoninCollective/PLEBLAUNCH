@@ -3,16 +3,24 @@ const fetch = require('node-fetch');
 const axios = require('axios');
 const https = require('follow-redirects').https;
 const request = require('request');
+const express = require('express');
 
 class TelegramBotService {
-  constructor(token, pool, io, solscanApiKey) {
-    this.bot = new TelegramBot(token, { polling: true });
+  constructor(token, pool, io, solscanApiKey, webhookUrl, app) {
+    this.token = token;
     this.pool = pool;
     this.io = io;
     this.solscanApiKey = solscanApiKey || process.env.SOLSCAN_API_TOKEN;
+    this.webhookUrl = webhookUrl || process.env.PUBLIC_URL;
+    this.app = app;
+    this.bot = new TelegramBot(token, { webHook: true });
   }
 
-  start() {
+  async start() {
+    // Set webhook
+    await this.bot.setWebHook(`${this.webhookUrl}/bot${this.token}`);
+    // Register webhook callback with Express
+    this.app.use(this.bot.webHookCallback(`/bot${this.token}`));
     this.bot.on('message', async (msg) => {
       if (!msg.text) return;
       const text = msg.text.trim();
@@ -88,7 +96,7 @@ class TelegramBotService {
       }
       this.bot.answerCallbackQuery(query.id);
     });
-    console.log('TelegramBotService started and listening for messages');
+    console.log('TelegramBotService started in webhook mode and listening for messages');
   }
 
   // --- API Helper Methods ---
@@ -274,21 +282,15 @@ class TelegramBotService {
 
 module.exports = TelegramBotService;
 
-// Example usage and startup
+// Example usage and startup for webhook mode
 if (require.main === module) {
-  const bot = new TelegramBotService(process.env.TELEGRAM_BOT_TOKEN);
+  const app = express();
+  const port = process.env.PORT || 3000;
+  const webhookUrl = process.env.PUBLIC_URL; // e.g., https://your-app.onrender.com
+  const bot = new TelegramBotService(process.env.TELEGRAM_BOT_TOKEN, null, null, null, webhookUrl, app);
   bot.start();
-
-  // Graceful shutdown
-  process.on('SIGINT', async () => {
-    console.log('\n🛑 Shutting down bot service...');
-    await bot.cleanup();
-    process.exit(0);
-  });
-
-  process.on('SIGTERM', async () => {
-    console.log('\n🛑 Shutting down bot service...');
-    await bot.cleanup();
-    process.exit(0);
+  app.get('/', (req, res) => res.send('Bot is running!'));
+  app.listen(port, () => {
+    console.log(`Express server is listening on ${port}`);
   });
 }
