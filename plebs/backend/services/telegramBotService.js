@@ -20,7 +20,10 @@ class TelegramBotService {
 
         // Fetch token info from Solscan
         try {
-          const resp = await fetch(`https://api.solscan.io/token/meta?tokenAddress=${ca}`);
+          const solscanToken = process.env.SOLSCAN_API_TOKEN;
+          const resp = await fetch(`https://api.solscan.io/token/meta?tokenAddress=${ca}`, {
+            headers: solscanToken ? { 'Authorization': `Bearer ${solscanToken}` } : {}
+          });
           const data = await resp.json();
           if (data && data.symbol) {
             const infoMsg = `Token Info:\nName: ${data.name}\nSymbol: ${data.symbol}\nDecimals: ${data.decimals}\n\n[View on Solscan](https://solscan.io/token/${ca})`;
