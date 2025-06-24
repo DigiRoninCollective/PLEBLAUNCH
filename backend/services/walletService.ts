@@ -687,6 +687,50 @@ class WalletService {
         decrypted += decipher.final('utf8');
         return decrypted;
     }
+
+    /**
+     * Get token metadata from Helius API
+     * @param {string} mint - Token mint address
+     * @returns {Promise<Object>} Token metadata
+     */
+    async getTokenMetadata(mint: string) {
+        try {
+            const response = await axios.get(`https://api.helius.xyz/v0/metadata?api-key=${process.env.HELIUS_API_KEY}`, {
+                params: { mintAddresses: mint }
+            });
+            return {
+                success: true,
+                data: response.data[0]
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Get multiple token metadata from Helius API
+     * @param {string[]} mints - Array of token mint addresses
+     * @returns {Promise<Object[]>} Array of token metadata
+     */
+    async getMultipleTokenMetadata(mints: string[]) {
+        try {
+            const response = await axios.get(`https://api.helius.xyz/v0/metadata?api-key=${process.env.HELIUS_API_KEY}`, {
+                params: { mintAddresses: mints }
+            });
+            return {
+                success: true,
+                data: response.data
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
 }
 
 export default WalletService;
